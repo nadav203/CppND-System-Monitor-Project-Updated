@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "linux_parser.h"
 
@@ -98,18 +99,20 @@ float LinuxParser::MemoryUtilization() {
 // finished
 long LinuxParser::UpTime() {
   string line;
-  float Up_time; 
-  float Idle_time;
-  int final_uptime;
+  string Up_time; 
+  string Idle_time;
   
   std::ifstream filestream(kProcDirectory + kUptimeFilename);
   if (filestream.is_open()) {
-    std::getline(filestream, line);
-    std::istringstream linestream(line);
-    linestream >> Up_time >> Idle_time;
+    while (std::getline(filestream, line)){
+      std::istringstream linestream(line);
+      while (linestream >> Up_time >> Idle_time) {
+        return std::stol(Up_time);
+      }
+    }
   }
-  final_uptime = int(Up_time);
-  return long(final_uptime);
+  
+  return 0;
   
 }
       
