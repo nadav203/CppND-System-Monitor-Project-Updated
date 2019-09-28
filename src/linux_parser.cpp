@@ -177,6 +177,7 @@ int LinuxParser::TotalProcesses() {
       while (linestream >> key >> value){
         if (key == "processes"){
           Total_processes = stoi(value);
+          return Total_processes;
         }
       }
     }
@@ -201,6 +202,7 @@ int LinuxParser::RunningProcesses() {
       while (linestream >> key >> value){
         if (key == "procs_running"){
           Running_procs = stoi(value);
+          return Running_procs;
         }
       }
     }
@@ -238,6 +240,7 @@ string LinuxParser::Ram(int pid) {
       while (linestream >> key >> value) {
         if (key == "VmSize:") {
           mem_process = value;
+          return mem_process;
         }
       }
     }
@@ -269,6 +272,7 @@ string LinuxParser::Uid(int pid) {
       while (linestream >> key >> value) {
         if (key == "Uid") {
           user_id = value;
+          return user_id;
         }
       }
     }
