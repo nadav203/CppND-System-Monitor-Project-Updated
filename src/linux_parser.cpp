@@ -134,9 +134,30 @@ long LinuxParser::ActiveJiffies() { return 0; }
 long LinuxParser::IdleJiffies() { return 0; }
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization(int pid) { 
+vector<float> LinuxParser::CpuUtilization(int pid) { 
   
-  return {}; }
+  vector<float> cpuValues{};
+  string line;
+  float time = 0;
+  string value;
+  std::ifstream filestream(kProcDirectory + "/" + std::to_string(pid) + kStatFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      for (int i = 1; i <= kStarttime_; i++) {
+        linestream >> value;
+        if (i == kUtime_ || i == kStime_ || i == kCutime_ || i == kCstime_ || i == kStarttime_) {
+          // read in clock ticks and convert to seconds
+          // devide by clock ticks per second
+          time = std::stof(value) / sysconf(_SC_CLK_TCK);
+          cpuValues.push_back(time);
+        }
+      }
+    }
+  }
+  return cpuValues;
+}
+  
 
 // TODO: Read and return the total number of processes
 //finished
@@ -257,28 +278,27 @@ string LinuxParser::Uid(int pid) {
 //finished
 string LinuxParser::User(int pid) { 
   
+  // read the user ID for this process
+  string uid = Uid(pid);
   string line;
-  string key1, key2;
-  string value;
-  string user_process;
-  string user_id = LinuxParser::Uid(pid);
-  
+  string key;
+  string value = "";
+  string other;
+  // find user name for this user ID in /etc/passwd
   std::ifstream filestream(kPasswordPath);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
-      std::replace(line.begin(), line.end(), ":", " ");
+      std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
-      while (linestream >> value >> key1 >> key2) {
-        if (key2 == user_id) {
-          std::replace(line.begin(), line.end(), " ", ":");
-          user_process = value;
+      while (linestream >> value >> other >> key) {
+        if (key == uid) {
+          return value;
         }
       }
     }
   }
-  return user_process;
+  return value;
 }
-  
   
   
 
@@ -286,27 +306,27 @@ string LinuxParser::User(int pid) {
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 //NOT finished
-long LinuxParser::UpTime(int pid) { 
-  
+
+long LinuxParser::UpTime(int pid) {
   string line;
-  string key1, key2;
-  value1, value2;
-  long proc_uptime;
-  string pid_string;
-  
-  pid_string = to_string(pid);
-    
-  std::ifstream filestream(kProcDirectory + pid_string + kStatFilename);
+  long uptime = 0;
+  string value;
+  std::ifstream filestream(kProcDirectory + "/" + std::to_string(pid) + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
-      while (linestream >> key >> value) {
-        if (key == "Uid") {
-          user_id = value;
+      for (int i = 1; i <= kStarttime_; i++) {
+        linestream >> value;
+        if (i == kStarttime_) {
+          // read the starttime value in clock ticks and convert to seconds
+          // devide by clock ticks per second
+          uptime = std::stol(value) / sysconf(_SC_CLK_TCK);
+          return uptime;
         }
       }
     }
   }
-  return user_id;                                    
+  return uptime;
+}
                                                   
                                               
