@@ -303,8 +303,8 @@ string LinuxParser::User(int pid) {
   
 
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
+// TODO: Read and return the uptimeof a process
+// REM OVE: [[maybe_unused]] once you define the function
 //NOT finished
 
 long LinuxParser::UpTime(int pid) {
