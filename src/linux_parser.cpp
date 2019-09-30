@@ -70,29 +70,39 @@ vector<int> LinuxParser::Pids() {
 // TODO: Read and return the system memory utilization
 // is memory utilization (TotalMem - FreeMem) / TotalMem??
 // finished
-float LinuxParser::MemoryUtilization() { 
+float LinuxParser::MemoryUtilization() {
+  float memTotal = 0.0;
+  float memFree = 0.0;
   string line;
   string key;
-  // float value;
-  float Total_mem, Free_mem, line_value;
-  
+  string value;
+
+  // read file /proc/meminfo and look for MemTotal and MemFree
   std::ifstream filestream(kProcDirectory + kMeminfoFilename);
-  if (filestream.is_open()){ 
-    while (std::getline(filestream, line)){
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::remove(line.begin(), line.end(), ' ');
+      std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
-      while (linestream >> key >> line_value){
-        if (key == "MemTotal"){
-          Total_mem = line_value;
+      while (linestream >> key >> value) {
+        // search for key memTotal
+        if (key == "MemTotal") {
+          memTotal = std::stof(value);
         }
-        else if (key == "MemFree"){
-          Free_mem = line_value;
-          }
+        // search for key memFree
+        else if (key == "MemFree") {
+          memFree = std::stof(value);
+          break;
+        }
       }
     }
-    
   }
-  return float (Total_mem-Free_mem)/Total_mem; 
+
+  // Total used memory = (memTotal - MemFree) / memTotal
+  return ((memTotal - memFree) / memTotal); 
 }
+
+
 
 // TODO: Read and return the system uptime
 // Up_time = first number, Idle_time relevant??
