@@ -285,7 +285,7 @@ string LinuxParser::Uid(int pid) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
-        if (key == "Uid") {
+        if (key == "Uid:") {
           user_id = value;
           return user_id;
         }
