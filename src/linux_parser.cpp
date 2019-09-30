@@ -91,7 +91,7 @@ float LinuxParser::MemoryUtilization() {
     }
     
   }
-  return (Total_mem-Free_mem)/Total_mem; 
+  return float (Total_mem-Free_mem)/Total_mem; 
 }
 
 // TODO: Read and return the system uptime
@@ -170,7 +170,7 @@ int LinuxParser::TotalProcesses() {
   string key;
   string value;
   int Total_processes;
-  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+  std::ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)){
       std::istringstream linestream(line);
@@ -193,15 +193,15 @@ int LinuxParser::TotalProcesses() {
 int LinuxParser::RunningProcesses() {
   string line;
   string key;
-  string value;
+  int value;
   int Running_procs;
-  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+  std::ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)){
       std::istringstream linestream(line);
       while (linestream >> key >> value){
         if (key == "procs_running"){
-          Running_procs = stoi(value);
+          Running_procs = value;
           return Running_procs;
         }
       }
